@@ -32,39 +32,39 @@ class XnliProcessor(DataProcessor):
     def __init__(self):
         pass
 
-    def get_examples(self, data_dir, language='en', split='train'):
-      """See base class."""
-      examples = []
-      for lg in language.split(','):
-        lines = self._read_tsv(os.path.join(data_dir, "{}-{}.tsv".format(split, lg)))
-        
-        for (i, line) in enumerate(lines):
-          if i == 0:
-            continue
-          guid = "%s-%s-%s" % (split, lg, i)
-          text_a = line[0]
-          text_b = line[1]
-          if split == 'test' and len(line) != 3:
-            label = "neutral"
-          else:
-            label = str(line[2].strip())
-          assert isinstance(text_a, str) and isinstance(text_b, str) and isinstance(label, str)
-          examples.append(InputExample(guid=guid, text_a=text_a, text_b=text_b, label=label, language=lg))
-      return examples
-
-    def get_train_examples(self, data_dir, language='en'):
-        return self.get_examples(data_dir, language, split='train')
-
-    def get_dev_examples(self, data_dir, language='en'):
-        return self.get_examples(data_dir, language, split='dev')
-
-    def get_test_examples(self, data_dir, language='en'):
-        return self.get_examples(data_dir, language, split='test')
-
-    def get_translate_train_examples(self, data_dir, language='en'):
+    def get_examples(self, data_dir, language="en", split="train"):
         """See base class."""
         examples = []
-        for lg in language.split(','):
+        for lg in language.split(","):
+            lines = self._read_tsv(os.path.join(data_dir, "{}-{}.tsv".format(split, lg)))
+
+            for (i, line) in enumerate(lines):
+                if i == 0:
+                    continue
+                guid = "%s-%s-%s" % (split, lg, i)
+                text_a = line[0]
+                text_b = line[1]
+                if split == "test" and len(line) != 3:
+                    label = "neutral"
+                else:
+                    label = str(line[2].strip())
+                assert isinstance(text_a, str) and isinstance(text_b, str) and isinstance(label, str)
+                examples.append(InputExample(guid=guid, text_a=text_a, text_b=text_b, label=label, language=lg))
+        return examples
+
+    def get_train_examples(self, data_dir, language="en"):
+        return self.get_examples(data_dir, language, split="train")
+
+    def get_dev_examples(self, data_dir, language="en"):
+        return self.get_examples(data_dir, language, split="dev")
+
+    def get_test_examples(self, data_dir, language="en"):
+        return self.get_examples(data_dir, language, split="test")
+
+    def get_translate_train_examples(self, data_dir, language="en"):
+        """See base class."""
+        examples = []
+        for lg in language.split(","):
             file_path = os.path.join(data_dir, "XNLI-Translated/en-{}-translated.tsv".format(lg))
             logger.info("reading file from " + file_path)
             lines = self._read_tsv(file_path)
@@ -77,7 +77,7 @@ class XnliProcessor(DataProcessor):
                 examples.append(InputExample(guid=guid, text_a=text_a, text_b=text_b, label=label, language=lg))
         return examples
 
-    def get_translate_test_examples(self, data_dir, language='en'):
+    def get_translate_test_examples(self, data_dir, language="en"):
         lg = language
         lines = self._read_tsv(os.path.join(data_dir, "XNLI-Translated/test-{}-en-translated.tsv".format(lg)))
         examples = []
@@ -89,9 +89,11 @@ class XnliProcessor(DataProcessor):
             assert isinstance(text_a, str) and isinstance(text_b, str) and isinstance(label, str)
             examples.append(InputExample(guid=guid, text_a=text_a, text_b=text_b, label=label, language=language))
         return examples
-        
-    def get_pseudo_test_examples(self, data_dir, language='en'):
-        lines = self._read_tsv(os.path.join(data_dir, "XNLI-Translated/pseudo-test-set/en-{}-pseudo-translated.csv".format(language)))
+
+    def get_pseudo_test_examples(self, data_dir, language="en"):
+        lines = self._read_tsv(
+            os.path.join(data_dir, "XNLI-Translated/pseudo-test-set/en-{}-pseudo-translated.csv".format(language))
+        )
         examples = []
         for (i, line) in enumerate(lines):
             guid = "%s-%s-%s" % ("pseudo-test", language, i)

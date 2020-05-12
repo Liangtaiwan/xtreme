@@ -21,7 +21,7 @@ if is_tf_available():
 logger = logging.getLogger(__name__)
 
 
-def _improve_answer_span(doc_tokens, input_start, input_end, tokenizer, orig_answer_text, lang='en', lang2id=None):
+def _improve_answer_span(doc_tokens, input_start, input_end, tokenizer, orig_answer_text, lang="en", lang2id=None):
     """Returns tokenized answer spans that better match the annotated answer."""
     if lang2id is None:
         tok_answer_text = " ".join(tokenizer.tokenize(orig_answer_text))
@@ -120,8 +120,13 @@ def squad_convert_example_to_features(example, max_seq_length, doc_stride, max_q
             tok_end_position = len(all_doc_tokens) - 1
 
         (tok_start_position, tok_end_position) = _improve_answer_span(
-            all_doc_tokens, tok_start_position, tok_end_position, tokenizer, example.answer_text,
-            lang=example.language, lang2id=lang2id
+            all_doc_tokens,
+            tok_start_position,
+            tok_end_position,
+            tokenizer,
+            example.answer_text,
+            lang=example.language,
+            lang2id=lang2id,
         )
 
     spans = []
@@ -145,7 +150,7 @@ def squad_convert_example_to_features(example, max_seq_length, doc_stride, max_q
             pad_to_max_length=True,
             stride=max_seq_length - doc_stride - len(truncated_query) - sequence_pair_added_tokens,
             truncation_strategy="only_second" if tokenizer.padding_side == "right" else "only_first",
-            return_token_type_ids=True
+            return_token_type_ids=True,
         )
 
         paragraph_len = min(
@@ -255,7 +260,7 @@ def squad_convert_example_to_features(example, max_seq_length, doc_stride, max_q
                 token_to_orig_map=span["token_to_orig_map"],
                 start_position=start_position,
                 end_position=end_position,
-                langs=langs
+                langs=langs,
             )
         )
     return features
@@ -267,8 +272,15 @@ def squad_convert_example_to_features_init(tokenizer_for_convert):
 
 
 def squad_convert_examples_to_features(
-    examples, tokenizer, max_seq_length, doc_stride, max_query_length, is_training, return_dataset=False, threads=1,
-    lang2id=None
+    examples,
+    tokenizer,
+    max_seq_length,
+    doc_stride,
+    max_query_length,
+    is_training,
+    return_dataset=False,
+    threads=1,
+    lang2id=None,
 ):
     """
     Converts a list of examples into a list of features that can be directly given as input to a model.
@@ -315,7 +327,7 @@ def squad_convert_examples_to_features(
             doc_stride=doc_stride,
             max_query_length=max_query_length,
             is_training=is_training,
-            lang2id=lang2id
+            lang2id=lang2id,
         )
         features = list(
             tqdm(
@@ -353,7 +365,13 @@ def squad_convert_examples_to_features(
         if not is_training:
             all_example_index = torch.arange(all_input_ids.size(0), dtype=torch.long)
             dataset = TensorDataset(
-                all_input_ids, all_attention_masks, all_token_type_ids, all_example_index, all_cls_index, all_p_mask, all_langs
+                all_input_ids,
+                all_attention_masks,
+                all_token_type_ids,
+                all_example_index,
+                all_cls_index,
+                all_p_mask,
+                all_langs,
             )
         else:
             all_start_positions = torch.tensor([f.start_position for f in features], dtype=torch.long)
@@ -366,7 +384,7 @@ def squad_convert_examples_to_features(
                 all_end_positions,
                 all_cls_index,
                 all_p_mask,
-                all_langs
+                all_langs,
             )
 
         return features, dataset
@@ -478,7 +496,7 @@ class SquadProcessor(DataProcessor):
 
         return examples
 
-    def get_train_examples(self, data_dir, filename=None, language='en'):
+    def get_train_examples(self, data_dir, filename=None, language="en"):
         """
         Returns the training examples from the data directory.
 
@@ -500,7 +518,7 @@ class SquadProcessor(DataProcessor):
             input_data = json.load(reader)["data"]
         return self._create_examples(input_data, "train", language)
 
-    def get_dev_examples(self, data_dir, filename=None, language='en'):
+    def get_dev_examples(self, data_dir, filename=None, language="en"):
         """
         Returns the evaluation example from the data directory.
 
@@ -557,7 +575,7 @@ class SquadProcessor(DataProcessor):
                         title=title,
                         is_impossible=is_impossible,
                         answers=answers,
-                        language=language
+                        language=language,
                     )
 
                     examples.append(example)
@@ -599,7 +617,7 @@ class SquadExample(object):
         title,
         answers=[],
         is_impossible=False,
-        language='en'
+        language="en",
     ):
         self.qas_id = qas_id
         self.question_text = question_text
@@ -680,7 +698,7 @@ class SquadFeatures(object):
         token_to_orig_map,
         start_position,
         end_position,
-        langs
+        langs,
     ):
         self.input_ids = input_ids
         self.attention_mask = attention_mask
